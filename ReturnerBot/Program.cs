@@ -23,11 +23,9 @@ namespace ReturnerBot
                 Console.WriteLine("Bot is initializing...");
                 if (Properties.Settings.Default.APIToken == "")
                 {
-                    //Console.WriteLine("Please enter your API: ");
-                    //string rAPI = Console.ReadLine();
-                    //string API = rAPI;
-                    //Properties.Settings.Default.APIToken = rAPI;
-                    var Bot = new TelegramBotClient("343174196:AAGRMRC1HTTdSymyL6pocecjw4XMm8AwuQw");
+                    Console.WriteLine("Please enter your API: ");
+                    string API = Console.ReadLine();
+                    var Bot = new TelegramBotClient(API);
                     var Me = await Bot.GetMeAsync();
                     Console.WriteLine($"{Me.Username}");
                     Console.WriteLine($"{Me.Username} has been initialized.");
