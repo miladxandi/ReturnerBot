@@ -68,6 +68,7 @@ namespace ReturnerBot
 
                         //security definitions
                         List<string> Users = new List<string>() { "milad_xandi", "Mrgoong", "sara_amiini", "lmnzl", "sodizandi" };
+                        List<string> Symbols = new List<string>() { "```", "`", "[", "]", "*","-" };
                         #region
                         /*if (Users.Contains(update.Message.Chat.Username))
                         {*/
@@ -94,7 +95,7 @@ namespace ReturnerBot
 برای شروع 'help' را تایپ کنید.");
 
                             }
-
+                            #region
                             else if ((update.Message.Text.Contains("http") ||
                                 update.Message.Text.Contains("https") ||
                                 update.Message.Text.Contains(".ir") ||
@@ -130,6 +131,7 @@ namespace ReturnerBot
                                 ```");
                                 }
                             }
+                            #endregion
                             else if (update.Message.Text == "ShowOurSpecialListUsers")
                             {
                                 foreach (var item in Users)
@@ -144,18 +146,36 @@ namespace ReturnerBot
                                 //string Message = Console.ReadLine();
 
                                 var Message = update.Message.Text;
-
-                                //remove @ form the content
                                 int Before = Message.IndexOf("@");
-                                string End = Message.Remove(Before - 4);
+                                if (Message.Contains("@")&&Before>=4)
+                                {
+                                    string End = Message.Remove(Before-4);
+
+                                    await Bot.SendTextMessageAsync(chatId: ChatId, replyToMessageId: MessageId, text: End + @"
+
+@MyCoderRobot");
+                                    continue;
+                                }
+
+                                if (Symbols.Contains(Message))
+                                {
+                                    await Bot.SendTextMessageAsync(chatId: ChatId, replyToMessageId: MessageId, text: Message+@"
+
+@MyCoderRobot",parseMode: Telegram.Bot.Types.Enums.ParseMode.Markdown);
+                                }
+                                else
+                                {
+                                    await Bot.SendTextMessageAsync(chatId: ChatId, replyToMessageId: MessageId, text: Message + @"
+
+@MyCoderRobot");
+                                }
+                                //remove @ form the content
 
                                 //make a better user-friendly interface
                                 //Console.Write("You: ");
 
                                 //replying with our own id
-                                await Bot.SendTextMessageAsync(chatId: ChatId, replyToMessageId: MessageId, text: End + @" 
-@MyCoderRobot");
-                                continue;
+
                             }
 
                         }
@@ -188,7 +208,7 @@ namespace ReturnerBot
                                     {
                                         //copy the downloaded file to the defined path
                                         await file.FileStream.CopyToAsync(saveFile);
-                                        
+
                                         //making console more interactive
                                         Console.WriteLine($"New file has been received with {fileName}.png filename.");
 
