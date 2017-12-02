@@ -31,10 +31,10 @@ namespace ReturnerBot
             try
             {
                 Console.WriteLine("Bot is initializing...");
-                Console.WriteLine("Please enter your API: ");
-                string API = Console.ReadLine();
+                //Console.WriteLine("Please enter your API: ");
+                //string API = Console.ReadLine();
                 //Token has been sent by admin
-                var Bot = new TelegramBotClient(API);
+                var Bot = new TelegramBotClient("486675268:AAE7jCcfI6FNgS57lS39t1BBqb6lVNZhP2E");
                 //Bot starting to be initialize.
                 var Me = await Bot.GetMeAsync();
                 Console.WriteLine($"{Me.Username}");
@@ -68,7 +68,7 @@ namespace ReturnerBot
 
                         //security definitions
                         List<string> Users = new List<string>() { "milad_xandi", "Mrgoong", "sara_amiini", "lmnzl", "sodizandi" };
-                        List<string> Symbols = new List<string>() { "```", "`", "[", "]", "*","-" };
+                        List<string> Symbols = new List<string>() { "```", "`", "[", "]", "*", "-" };
                         #region
                         /*if (Users.Contains(update.Message.Chat.Username))
                         {*/
@@ -111,16 +111,14 @@ namespace ReturnerBot
                                 ))
                             {
                                 var Message = update.Message.Text;
-                                if (Message.Contains("[") || Message.Contains("]") || Message.Contains("(") || Message.Contains(")") || Message.Contains(":") || Message.Contains(";") || Message.Contains("@") || Message.Contains("*") || Message.Contains("_") || Message.Contains("`") || Message.Contains("```"))
+                                if (Message.Contains("[") || Message.Contains("]")|| Message.Contains("(") || Message.Contains(")") || Message.Contains(":") || Message.Contains(";") || Message.Contains("*") || Message.Contains("_") || Message.Contains("`") || Message.Contains("```"))
                                 {
                                     //reply back the pre defined commands
                                     await Bot.SendTextMessageAsync(chatId: ChatId, replyToMessageId: MessageId, text: Message, parseMode: Telegram.Bot.Types.Enums.ParseMode.Markdown);
                                     continue;
                                 }
-                                else
-                                {
-                                    //guides
-                                    await Bot.SendTextMessageAsync(chatId: ChatId, replyToMessageId: MessageId, text: @"لطفا برای استفاده از امکانات توسعه دهندگان از این الگو استفاده کنید:
+                                //guides
+                                await Bot.SendTextMessageAsync(chatId: ChatId, replyToMessageId: MessageId, text: @"لطفا برای استفاده از امکانات توسعه دهندگان از این الگو استفاده کنید:
                                 *متن بلد*
                                 _متن ایتالیک_
                                 [متن](http://www.example.com/)
@@ -129,7 +127,7 @@ namespace ReturnerBot
                                 ```بلاک زبان
                                 کد پیش تنظیم شده Fixed Width
                                 ```");
-                                }
+
                             }
                             #endregion
                             else if (update.Message.Text == "ShowOurSpecialListUsers")
@@ -146,22 +144,68 @@ namespace ReturnerBot
                                 //string Message = Console.ReadLine();
 
                                 var Message = update.Message.Text;
-                                int Before = Message.IndexOf("@");
-                                if (Message.Contains("@")&&Before>=4)
+                                int AT = Message.IndexOf("@");
+                                if (Message.Contains("@") && AT >= 4)
                                 {
-                                    string End = Message.Remove(Before-4);
+                                    int Line = Message.IndexOf("\n");
 
-                                    await Bot.SendTextMessageAsync(chatId: ChatId, replyToMessageId: MessageId, text: End + @"
+                                    if (AT - 4 == Line)
+                                    {
+                                        string End = Message.Remove(AT - 4);
+
+                                        await Bot.SendTextMessageAsync(chatId: ChatId, replyToMessageId: MessageId, text: End + @"
 
 @MyCoderRobot");
-                                    continue;
-                                }
+                                        continue;
+                                    }
+                                    else if (AT - 3 == Line)
+                                    {
+                                        string End = Message.Remove(AT - 3);
 
+                                        await Bot.SendTextMessageAsync(chatId: ChatId, replyToMessageId: MessageId, text: End + @"
+
+@MyCoderRobot");
+                                        continue;
+                                    }
+                                    else if (AT - 2 == Line)
+                                    {
+                                        string End = Message.Remove(AT - 2);
+
+                                        await Bot.SendTextMessageAsync(chatId: ChatId, replyToMessageId: MessageId, text: End + @"
+
+@MyCoderRobot");
+                                        continue;
+                                    }
+                                    else
+                                    {
+                                        string End = Message.Remove(AT - 4);
+
+                                        await Bot.SendTextMessageAsync(chatId: ChatId, replyToMessageId: MessageId, text: End + @"
+
+@MyCoderRobot");
+                                        continue;
+                                    }
+
+                                }
+                                else if (Message.Contains("@") && AT <= 2)
+                                {
+                                    int Line = Message.IndexOf('\n');
+                                    if (Line <= 20)
+                                    {
+                                        string End = Message.Substring(Line + 1);
+
+                                        await Bot.SendTextMessageAsync(chatId: ChatId, replyToMessageId: MessageId, text: End + @"
+
+@MyCoderRobot");
+                                        continue;
+                                    }
+
+                                }
                                 if (Symbols.Contains(Message))
                                 {
-                                    await Bot.SendTextMessageAsync(chatId: ChatId, replyToMessageId: MessageId, text: Message+@"
+                                    await Bot.SendTextMessageAsync(chatId: ChatId, replyToMessageId: MessageId, text: Message + @"
 
-@MyCoderRobot",parseMode: Telegram.Bot.Types.Enums.ParseMode.Markdown);
+@MyCoderRobot", parseMode: Telegram.Bot.Types.Enums.ParseMode.Markdown);
                                 }
                                 else
                                 {
