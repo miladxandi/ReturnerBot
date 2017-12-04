@@ -54,7 +54,7 @@ namespace ReturnerBot
                 while (true)
                 {
 
-                    var updates = await Bot.GetUpdatesAsync(offset);
+                    var updates = await Bot.GetUpdatesAsync(offset, timeout: 1200);
                     foreach (var update in updates)
                     {
                         //everytime make the robot answer the newest messages, because of the incremention of ID
@@ -70,9 +70,10 @@ namespace ReturnerBot
                             //security definitions
                             List<string> Users = new List<string>() { "milad_xandi", "Mrgoong", "sara_amiini", "lmnzl", "sodizandi" };
                             List<string> Symbols = new List<string>() { "```", "`", "[", "]", "*", "-" };
+                            List<string> BadChannels = new List<string> { "BESTPER","jamarannews" };
                             #region
-                            /*if (Users.Contains(update.Message.Chat.Username))
-                            {*/
+                                /*if (Users.Contains(update.Message.Chat.Username))
+                                {*/
                             if (update.Message.Text != null)
                             {
                                 //make out put more interactive.
@@ -146,40 +147,21 @@ namespace ReturnerBot
 
                                     var Message = update.Message.Text;
                                     int AT = Message.IndexOf("@");
+                                    var Matching = BadChannels.FirstOrDefault(stringToCheck => Message.Contains(Message));
                                     if (Message.Contains("@") && AT >= 4)
                                     {
-                                        int Line = Message.IndexOf("\n");
 
-                                        if (AT - 4 == Line)
+                                        if (Matching != null)
                                         {
+                                            Console.WriteLine($"\n+++ {Me.Username}: There was a matching with BadChannels & successfully handled by me! +++");
                                             string End = Message.Remove(AT - 4);
 
-                                            await Bot.SendTextMessageAsync(chatId: ChatId, replyToMessageId: MessageId, text: End + @"
-
-@MyCoderRobot");
-                                            continue;
-                                        }
-                                        else if (AT - 3 == Line)
-                                        {
-                                            string End = Message.Remove(AT - 3);
-
-                                            await Bot.SendTextMessageAsync(chatId: ChatId, replyToMessageId: MessageId, text: End + @"
-
-@MyCoderRobot");
-                                            continue;
-                                        }
-                                        else if (AT - 2 == Line)
-                                        {
-                                            string End = Message.Remove(AT - 2);
-
-                                            await Bot.SendTextMessageAsync(chatId: ChatId, replyToMessageId: MessageId, text: End + @"
-
-@MyCoderRobot");
+                                            await Bot.SendTextMessageAsync(chatId: ChatId, replyToMessageId: MessageId, text: End + @"@MyCoderRobot");
                                             continue;
                                         }
                                         else
                                         {
-                                            string End = Message.Remove(AT - 4);
+                                            string End = Message.Remove(AT - 2);
 
                                             await Bot.SendTextMessageAsync(chatId: ChatId, replyToMessageId: MessageId, text: End + @"
 
@@ -260,17 +242,64 @@ namespace ReturnerBot
                                             //let the user know what`s going on...
                                             await Bot.SendTextMessageAsync(chatId: ChatId, text: $"پرونده ی شما دریافت شد و با نام {fileName}.png در ابر ذخیره شد، منتظر بازگشت آن باشید ...");
                                         }
-
                                         //start uploading from the defined path
                                         using (var stream = System.IO.File.Open(image_save_url, FileMode.OpenOrCreate))
                                         {
                                             //removing id with the prefix
-                                            int Before = Caption.IndexOf("@");
-                                            string End = Caption.Remove(Before - 4);
-                                            Console.WriteLine($"{fileName}.png is uploading...");
+                                            int AT = Caption.IndexOf("@");
+                                            var Matching = BadChannels.FirstOrDefault(stringToCheck => Caption.Contains(Caption));
+                                            if (Caption.Contains("@") && AT >= 4)
+                                            {
 
-                                            //sending file
-                                            await Bot.SendPhotoAsync(chatId: ChatId, caption: End + @" @MyCoderRobot", photo: new Telegram.Bot.Types.FileToSend($"{fileName}", stream), replyToMessageId: MessageId);
+                                                if (Matching!=null)
+                                                {
+                                                    Console.WriteLine($"\n+++ {Me.Username}: There was a matching with BadChannels & successfully handled by me! +++");
+                                                    string End = Caption.Remove(AT - 4);
+
+                                                    Console.WriteLine($"{fileName}.png is uploading...");
+
+                                                    //sending file
+                                                    await Bot.SendPhotoAsync(chatId: ChatId, caption: End + @"
+@MyCoderRobot", photo: new Telegram.Bot.Types.FileToSend($"{fileName}", stream), replyToMessageId: MessageId);
+
+                                                    Console.WriteLine($"{fileName}.png has been uploaded");
+                                                    continue;
+
+                                                }
+                                                else
+                                                {
+                                                string End = Caption.Remove(AT - 2);
+
+                                                Console.WriteLine($"{fileName}.png is uploading...");
+
+                                                //sending file
+                                                await Bot.SendPhotoAsync(chatId: ChatId, caption: End + @"
+@MyCoderRobot", photo: new Telegram.Bot.Types.FileToSend($"{fileName}", stream), replyToMessageId: MessageId);
+
+                                                Console.WriteLine($"{fileName}.png has been uploaded");
+
+                                                continue;
+                                                }
+
+                                            }
+                                            else if (Caption.Contains("@") && AT <= 2)
+                                            {
+                                                int Line = Caption.IndexOf('\n');
+                                                if (Line <= 20)
+                                                {
+                                                    string End = Caption.Substring(Line + 1);
+
+                                                    Console.WriteLine($"{fileName}.png is uploading...");
+
+                                                    //sending file
+                                                    await Bot.SendPhotoAsync(chatId: ChatId, caption: End + @"
+@MyCoderRobot", photo: new Telegram.Bot.Types.FileToSend($"{fileName}", stream), replyToMessageId: MessageId);
+
+                                                    Console.WriteLine($"{fileName}.png has been uploaded");
+
+                                                    continue;
+                                                }
+                                            }
                                         }
                                     }
                                     else
@@ -287,7 +316,10 @@ namespace ReturnerBot
                                         {
                                             Console.WriteLine($"{fileName}.png is uploading...");
                                             await Bot.SendPhotoAsync(chatId: ChatId, caption: Caption + @"
+
 @MyCoderRobot", photo: new Telegram.Bot.Types.FileToSend($"{fileName}", stream), replyToMessageId: MessageId);
+                                            Console.WriteLine($"{fileName}.png has been uploaded");
+
                                         }
                                     }
 
@@ -305,11 +337,13 @@ namespace ReturnerBot
                                     {
                                         Console.WriteLine($"{fileName}.png is uploading...");
                                         await Bot.SendPhotoAsync(chatId: ChatId, photo: new Telegram.Bot.Types.FileToSend($"{fileName}", stream), replyToMessageId: MessageId);
+                                        Console.WriteLine($"{fileName}.png has been uploaded");
+
                                     }
                                 }
 
                             }
-                            else if (update.Message.Video != null)
+                            else if (update.Message.Video != null && update.Message.Video.FileSize <= 10000000)
                             {
                                 var Caption = update.Message.Caption;
                                 var FileId = update.Message.Video.FileId;
@@ -321,8 +355,6 @@ namespace ReturnerBot
 
                                     if (Caption.Contains("@"))
                                     {
-                                        int Before = Caption.IndexOf("@");
-                                        string End = Caption.Remove(Before - 4);
                                         using (var saveFile = System.IO.File.Open(video_save_url, FileMode.OpenOrCreate))
                                         {
                                             await file.FileStream.CopyToAsync(saveFile);
@@ -330,10 +362,64 @@ namespace ReturnerBot
                                             await Bot.SendTextMessageAsync(chatId: ChatId, text: $"پرونده ی شما دریافت شد و با نام {fileName}.mp4 در ابر ذخیره شد، منتظر بازگشت آن باشید ...");
                                         }
 
+                                        //start uploading from the defined path
                                         using (var stream = System.IO.File.Open(video_save_url, FileMode.OpenOrCreate))
                                         {
-                                            Console.WriteLine($"{fileName}.mp4 is uploading...");
-                                            await Bot.SendVideoAsync(chatId: ChatId, caption: End + @" @MyCoderRobot", video: new Telegram.Bot.Types.FileToSend($"{fileName}", stream), replyToMessageId: MessageId);
+                                            //removing id with the prefix
+                                            int AT = Caption.IndexOf("@");
+                                            var Matching = BadChannels.FirstOrDefault(stringToCheck => Caption.Contains(Caption));
+                                            if (Caption.Contains("@") && AT >= 4)
+                                            {
+
+                                                if (Matching != null)
+                                                {
+                                                    Console.WriteLine($"\n+++ {Me.Username}: There was a matching with BadChannels & successfully handled by me! +++");
+                                                    string End = Caption.Remove(AT - 4);
+
+                                                    Console.WriteLine($"{fileName}.mp4 is uploading...");
+
+                                                    //sending file
+                                                    await Bot.SendVideoAsync(chatId: ChatId, caption: End + @"
+@MyCoderRobot", video: new Telegram.Bot.Types.FileToSend($"{fileName}", stream), replyToMessageId: MessageId);
+
+                                                    Console.WriteLine($"{fileName}.mp4 has been uploaded");
+                                                    continue;
+
+                                                }
+                                                else
+                                                {
+                                                    string End = Caption.Remove(AT - 2);
+
+                                                    Console.WriteLine($"{fileName}.mp4 is uploading...");
+
+                                                    //sending file
+                                                    await Bot.SendVideoAsync(chatId: ChatId, caption: End + @"
+@MyCoderRobot", video: new Telegram.Bot.Types.FileToSend($"{fileName}", stream), replyToMessageId: MessageId);
+
+                                                    Console.WriteLine($"{fileName}.mp4 has been uploaded");
+
+                                                    continue;
+                                                }
+
+                                            }
+                                            else if (Caption.Contains("@") && AT <= 2)
+                                            {
+                                                int Line = Caption.IndexOf('\n');
+                                                if (Line <= 20)
+                                                {
+                                                    string End = Caption.Substring(Line + 1);
+
+                                                    Console.WriteLine($"{fileName}.mp4 is uploading...");
+
+                                                    //sending file
+                                                    await Bot.SendVideoAsync(chatId: ChatId, caption: End + @"
+@MyCoderRobot", video: new Telegram.Bot.Types.FileToSend($"{fileName}", stream), replyToMessageId: MessageId);
+
+                                                    Console.WriteLine($"{fileName}.mp4 has been uploaded");
+
+                                                    continue;
+                                                }
+                                            }
                                         }
                                     }
                                     else
@@ -350,6 +436,7 @@ namespace ReturnerBot
                                             Console.WriteLine($"{fileName}.mp4 is uploading...");
                                             await Bot.SendVideoAsync(chatId: ChatId, caption: Caption + @"
 @MyCoderRobot", video: new Telegram.Bot.Types.FileToSend($"{fileName}", stream), replyToMessageId: MessageId);
+                                            Console.WriteLine($"{fileName}.mp4 has been uploaded");
                                         }
                                     }
 
@@ -367,6 +454,8 @@ namespace ReturnerBot
                                     {
                                         Console.WriteLine($"{fileName}.mp4 is uploading...");
                                         await Bot.SendVideoAsync(chatId: ChatId, caption: Caption + @" @MyCoderRobot", video: new Telegram.Bot.Types.FileToSend($"{fileName}", stream), replyToMessageId: MessageId);
+                                        Console.WriteLine($"{fileName}.mp4 has been uploaded");
+
                                     }
                                 }
                             }
@@ -390,7 +479,7 @@ namespace ReturnerBot
                                     }
                                 }
                             }
-                            else if (update.Message.Audio != null)
+                            else if (update.Message.Audio != null && update.Message.Audio.FileSize <= 10000000)
                             {
                                 {
                                     var FileId = update.Message.Audio.FileId;
@@ -407,8 +496,6 @@ namespace ReturnerBot
 
                                         if (Caption.Contains("@"))
                                         {
-                                            int Before = Caption.IndexOf("@");
-                                            string End = Caption.Remove(Before - 4);
                                             using (var saveFile = System.IO.File.Open(music_save_url, FileMode.OpenOrCreate))
                                             {
                                                 await file.FileStream.CopyToAsync(saveFile);
@@ -418,8 +505,58 @@ namespace ReturnerBot
 
                                             using (var stream = System.IO.File.Open(music_save_url, FileMode.OpenOrCreate))
                                             {
-                                                Console.WriteLine($"{fileName}.mp3 is uploading...");
-                                                await Bot.SendAudioAsync(chatId: ChatId, performer: Performer, title: Title, duration: Duration, caption: End + @" @MyCoderRobot", audio: new Telegram.Bot.Types.FileToSend($"{fileName}", stream), replyToMessageId: MessageId);
+                                                //removing id with the prefix
+                                                int AT = Caption.IndexOf("@");
+                                                var Matching = BadChannels.FirstOrDefault(stringToCheck => Caption.Contains(Caption));
+                                                if (Caption.Contains("@") && AT >= 4)
+                                                {
+
+                                                    if (Matching != null)
+                                                    {
+                                                        Console.WriteLine($"\n+++ {Me.Username}: There was a matching with BadChannels & successfully handled by me! +++");
+                                                        string End = Caption.Remove(AT - 4);
+
+                                                        Console.WriteLine($"{fileName}.mp3 is uploading...");
+
+                                                        //sending file
+                                                        await Bot.SendAudioAsync(chatId: ChatId, performer: Performer, duration: Duration, title: Title, caption: End + @"
+@MyCoderRobot", audio: new Telegram.Bot.Types.FileToSend($"{fileName}", stream), replyToMessageId: MessageId);
+
+                                                        Console.WriteLine($"{fileName}.mp3 has been uploaded");
+                                                        continue;
+                                                    }
+                                                    else
+                                                    {
+                                                        string End = Caption.Remove(AT - 2);
+
+                                                        Console.WriteLine($"{fileName}.mp3 is uploading...");
+
+                                                        //sending file
+                                                        await Bot.SendAudioAsync(chatId: ChatId, performer: Performer, duration: Duration, title: Title, caption: End + @"
+@MyCoderRobot", audio: new Telegram.Bot.Types.FileToSend($"{fileName}", stream), replyToMessageId: MessageId);
+
+                                                        Console.WriteLine($"{fileName}.mp3 has been uploaded");
+                                                        continue;
+                                                    }
+
+                                                }
+                                                else if (Caption.Contains("@") && AT <= 2)
+                                                {
+                                                    int Line = Caption.IndexOf('\n');
+                                                    if (Line <= 20)
+                                                    {
+                                                        string End = Caption.Substring(Line + 1);
+
+                                                        Console.WriteLine($"{fileName}.mp3 is uploading...");
+
+                                                        //sending file
+                                                        await Bot.SendAudioAsync(chatId: ChatId, performer: Performer, duration: Duration, title: Title, caption: End + @"
+@MyCoderRobot", audio: new Telegram.Bot.Types.FileToSend($"{fileName}", stream), replyToMessageId: MessageId);
+
+                                                        Console.WriteLine($"{fileName}.mp3 has been uploaded");
+                                                        continue;
+                                                    }
+                                                }
                                             }
                                         }
                                         else
@@ -522,7 +659,7 @@ namespace ReturnerBot
                             else
                             {
                                 await Bot.SendTextMessageAsync(chatId: ChatId, text: $@"{update.Message.Chat.FirstName} عزیز؛
-ما نتوانستیم پرونده ی ارسالی شما را پردازش کنیم، این موضوع مشخصا به دلیل فرمت آن است.
+ما نتوانستیم پرونده ی ارسالی شما را پردازش کنیم، این موضوع ممکن است به دلیل فرمت آن و یا حجم فایل ارسالی باشد.
 در آینده مشکل را حل خواهیم کرد!");
                             }
                             //}
