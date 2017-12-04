@@ -30,11 +30,13 @@ namespace ReturnerBot
         {
             try
             {
+                #region
                 Console.WriteLine("Bot is initializing...");
-                Console.WriteLine("Please enter your API: ");
-                string API = Console.ReadLine();
-                //Token has been sent by admin
-                var Bot = new TelegramBotClient(API);
+                //You can get API
+                //Console.WriteLine("Please enter your API: ");
+                //string API = Console.ReadLine();
+                //Or let be it as a pre - defined API token
+                var Bot = new TelegramBotClient("API Token goes here...");
                 //Bot starting to be initialize.
                 var Me = await Bot.GetMeAsync();
                 Console.WriteLine($"{Me.Username}");
@@ -46,9 +48,10 @@ namespace ReturnerBot
                 Console.Clear();
                 Console.WriteLine("Press '~' for exit.");
                 Console.WriteLine($"{Me.Username} is ready to receive message.\n");
-
+                #endregion
                 #endregion
                 //offset is defined to let the robot detect which message didnt get answer.
+                #region
                 int offset = 0;
                 //continues the loop
                 while (true)
@@ -70,10 +73,12 @@ namespace ReturnerBot
                             //security definitions
                             List<string> Users = new List<string>() { "milad_xandi", "Mrgoong", "sara_amiini", "lmnzl", "sodizandi" };
                             List<string> Symbols = new List<string>() { "```", "`", "[", "]", "*", "-" };
-                            List<string> BadChannels = new List<string> { "BESTPER","jamarannews" };
+                            List<string> BadChannels = new List<string> { "BESTPER", "jamarannews" };
+                            var Calture = System.Globalization.CultureInfo.CurrentCulture;
+                            #endregion
                             #region
-                                /*if (Users.Contains(update.Message.Chat.Username))
-                                {*/
+                            /*if (Users.Contains(update.Message.Chat.Username))
+                            {*/
                             if (update.Message.Text != null)
                             {
                                 //make out put more interactive.
@@ -87,14 +92,16 @@ namespace ReturnerBot
                                 else if (update.Message.Text.Contains("/start"))
                                 {
                                     //Definition for the pre defined /start command of telegram bots.
-                                    await Bot.SendTextMessageAsync(chatId: ChatId, replyToMessageId: MessageId, text: $@"سلام {update.Message.Chat.FirstName}, به روبات انتشار سرویس ابری ما خوش آمدی!
-این روبات قابلیت دریافت و ذخیره، ارسال و بارگذاری و برخی فعالیت های جانبی دیگر مانند:
-        1.تولید کد
+                                    await Bot.SendTextMessageAsync(chatId: ChatId, replyToMessageId: MessageId, text: $@"سلام {update.Message.Chat.FirstName}, من {Me.Username} از امروز همکارت خواهم بود!
+این روبات فعلا قابلیت دریافت و ذخیره، ارسال و بارگذاری و برخی فعالیت های جانبی دیگه مثل:
+        1.تولید کد های ساده
         2.بازگشت دادن انواع پرونده
         3.تولید متن هایپرلینک
         4.ویرایش محتوا
-را دارا میباشد.
-برای شروع 'help' را تایپ کنید.");
+رو دارا هست.
+برای شروع 'help' رو تایپ کنید.
+برای شروع کد نویسی `Code` رو تایپ کنید.
+برای ارتباط با توسعه دهنده به [Milad](https://www.miladzandi.ir/) پیام بدید.", parseMode: Telegram.Bot.Types.Enums.ParseMode.Markdown);
 
                                 }
                                 #region
@@ -108,16 +115,26 @@ namespace ReturnerBot
                                     update.Message.Text.Contains("help") ||
                                     update.Message.Text.Contains("Help") ||
                                     update.Message.Text.Contains("www") ||
-                                    update.Message.Text.Contains(".org") ||
-                                    update.Message.Text.Contains("code")
+                                    update.Message.Text.Contains(".org")
                                     ))
                                 {
                                     var Message = update.Message.Text;
                                     if (Message.Contains("[") || Message.Contains("]") || Message.Contains("(") || Message.Contains(")") || Message.Contains(":") || Message.Contains(";") || Message.Contains("*") || Message.Contains("_") || Message.Contains("`") || Message.Contains("```"))
                                     {
-                                        //reply back the pre defined commands
-                                        await Bot.SendTextMessageAsync(chatId: ChatId, replyToMessageId: MessageId, text: Message, parseMode: Telegram.Bot.Types.Enums.ParseMode.Markdown);
-                                        continue;
+                                        if (Calture.TextInfo.IsRightToLeft && (Message.IndexOf("]") >= Message.IndexOf("[") && Message.IndexOf(")") >= Message.IndexOf("(")))
+                                        {
+                                            //reply back the pre defined commands
+                                            await Bot.SendTextMessageAsync(chatId: ChatId, replyToMessageId: MessageId, text: Message, parseMode: Telegram.Bot.Types.Enums.ParseMode.Markdown);
+                                            await Bot.SendTextMessageAsync(chatId: ChatId, replyToMessageId: MessageId, text: Message, parseMode: Telegram.Bot.Types.Enums.ParseMode.Markdown, disableWebPagePreview: true);
+                                            continue;
+                                        }
+                                        else if (Calture.TextInfo.IsRightToLeft == false && (Message.IndexOf("]") <= Message.IndexOf("[") && Message.IndexOf(")") <= Message.IndexOf("(")))
+                                        {
+                                            await Bot.SendTextMessageAsync(chatId: ChatId, replyToMessageId: MessageId, text: Message, parseMode: Telegram.Bot.Types.Enums.ParseMode.Markdown);
+                                            await Bot.SendTextMessageAsync(chatId: ChatId, replyToMessageId: MessageId, text: Message, parseMode: Telegram.Bot.Types.Enums.ParseMode.Markdown, disableWebPagePreview: true);
+                                            continue;
+                                        }
+
                                     }
                                     //guides
                                     await Bot.SendTextMessageAsync(chatId: ChatId, replyToMessageId: MessageId, text: @"لطفا برای استفاده از امکانات توسعه دهندگان از این الگو استفاده کنید:
@@ -139,6 +156,30 @@ namespace ReturnerBot
                                         //show the special persons list.
                                         await Bot.SendTextMessageAsync(chatId: ChatId, replyToMessageId: MessageId, text: item);
                                     }
+                                }
+                                else if (update.Message.Text == "Code" || update.Message.Text == "code")
+                                {
+                                    string firstCode = @"For example type ```html```";
+                                    await Bot.SendTextMessageAsync(text: firstCode, parseMode: Telegram.Bot.Types.Enums.ParseMode.Markdown, chatId: ChatId, replyToMessageId: MessageId);
+                                }
+                                else if (update.Message.Text == "html" || update.Message.Text == "HTML" || update.Message.Text == "Html")
+                                {
+                                    string firstCode = $@"
+```
+<html>
+    <head>
+        <title>
+            Designer:{update.Message.From.Username}
+        </title>
+    </head>
+    <body>
+        <h1>Thats {update.Message.From.FirstName} {update.Message.From.LastName}`s first HTML code</h1>
+    </body>
+</html>
+```
+
+@MyCoderRobot";
+                                    await Bot.SendTextMessageAsync(text: firstCode, parseMode: Telegram.Bot.Types.Enums.ParseMode.Markdown, chatId: ChatId, replyToMessageId: MessageId);
                                 }
                                 else
                                 {
@@ -251,7 +292,7 @@ namespace ReturnerBot
                                             if (Caption.Contains("@") && AT >= 4)
                                             {
 
-                                                if (Matching!=null)
+                                                if (Matching != null)
                                                 {
                                                     Console.WriteLine($"\n+++ {Me.Username}: There was a matching with BadChannels & successfully handled by me! +++");
                                                     string End = Caption.Remove(AT - 4);
@@ -268,17 +309,17 @@ namespace ReturnerBot
                                                 }
                                                 else
                                                 {
-                                                string End = Caption.Remove(AT - 2);
+                                                    string End = Caption.Remove(AT - 2);
 
-                                                Console.WriteLine($"{fileName}.png is uploading...");
+                                                    Console.WriteLine($"{fileName}.png is uploading...");
 
-                                                //sending file
-                                                await Bot.SendPhotoAsync(chatId: ChatId, caption: End + @"
+                                                    //sending file
+                                                    await Bot.SendPhotoAsync(chatId: ChatId, caption: End + @"
 @MyCoderRobot", photo: new Telegram.Bot.Types.FileToSend($"{fileName}", stream), replyToMessageId: MessageId);
 
-                                                Console.WriteLine($"{fileName}.png has been uploaded");
+                                                    Console.WriteLine($"{fileName}.png has been uploaded");
 
-                                                continue;
+                                                    continue;
                                                 }
 
                                             }
