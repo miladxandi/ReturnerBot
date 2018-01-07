@@ -3,21 +3,29 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Telegram;
 using Telegram.Bot;
 
 namespace ReturnerBot
 {
+    
     class Program
     {
+        public static int offset = 0;
+
+        internal static List<string> Users = new List<string>() { "milad_xandi", "Mrgoong", "sara_amiini", "lmnzl", "sodizandi" };
+        internal static List<string> Symbols = new List<string>() { "```", "`", "[", "]", "*", "_", "(", ")" };
+        internal static List<string> BadChannels = new List<string> {};
+        internal static int ind=0;
         #region
         private static string fileName = "";
         private static string image_save_url = $"C://robot//{fileName}.png";
         private static string video_save_url = $"C://robot//{fileName}.mp4";
         private static string music_save_url = $"C://robot//{fileName}.mp3";
         private static string ogg_save_url = $"C://robot//{fileName}.ogg";
-        private static string gif_save_url = $"C://robot//{fileName}.gif";
+        private static string gif_save_url = $"C://robot//{fileName}.mp4";
         #endregion
         static void Main(string[] args)
         {
@@ -26,7 +34,7 @@ namespace ReturnerBot
             while (Console.ReadKey().KeyChar != '~') ;
         }
         #region
-        static async Task RunBot()
+        public static async Task RunBot()
         {
             try
             {
@@ -36,7 +44,7 @@ namespace ReturnerBot
                 //Console.WriteLine("Please enter your API: ");
                 //string API = Console.ReadLine();
                 //Or let be it as a pre - defined API token
-                var Bot = new TelegramBotClient("API Token goes here...");
+                var Bot = new TelegramBotClient("438343756:AAH--MxqtNKE1SbgW_KurSSqkHUDnxYaFSk");
                 //Bot starting to be initialize.
                 var Me = await Bot.GetMeAsync();
                 Console.WriteLine($"{Me.Username}");
@@ -52,7 +60,8 @@ namespace ReturnerBot
                 #endregion
                 //offset is defined to let the robot detect which message didnt get answer.
                 #region
-                int offset = 0;
+                //int offset = 0;
+                Regex rgx = new Regex(@"\p{Cs}");
                 //continues the loop
                 while (true)
                 {
@@ -71,9 +80,7 @@ namespace ReturnerBot
                             var MessageId = update.Message.MessageId;
 
                             //security definitions
-                            List<string> Users = new List<string>() { "milad_xandi", "Mrgoong", "sara_amiini", "lmnzl", "sodizandi" };
-                            List<string> Symbols = new List<string>() { "```", "`", "[", "]", "*", "-" };
-                            List<string> BadChannels = new List<string> { "BESTPER", "jamarannews" };
+
                             var Calture = System.Globalization.CultureInfo.CurrentCulture;
                             #endregion
                             #region
@@ -94,14 +101,17 @@ namespace ReturnerBot
                                     //Definition for the pre defined /start command of telegram bots.
                                     await Bot.SendTextMessageAsync(chatId: ChatId, replyToMessageId: MessageId, text: $@"سلام {update.Message.Chat.FirstName}, من {Me.Username} از امروز همکارت خواهم بود!
 این روبات فعلا قابلیت دریافت و ذخیره، ارسال و بارگذاری و برخی فعالیت های جانبی دیگه مثل:
-        1.تولید کد های ساده
-        2.بازگشت دادن انواع پرونده
-        3.تولید متن هایپرلینک
-        4.ویرایش محتوا
+        
+    1. حذف نام کانال و یا هر محتوای مرتبط با کپی رایت، با استفاده از هوش مصنوعی باور نکردنی!
+    2. تولید کد ساده HTML / CSS برای نسخه ی اول.
+    3. تولید متن هایپر لینک برای ایجاد تجربه کاربری بهتر در هنگام انتشار تبلیغات.
+    4. بازگرداندن هر نوع محتوا.
+    5. ویرایش انواع محتوا.
+
 رو دارا هست.
 برای شروع 'help' رو تایپ کنید.
 برای شروع کد نویسی `Code` رو تایپ کنید.
-برای ارتباط با توسعه دهنده به [Milad](https://www.miladzandi.ir/) پیام بدید.", parseMode: Telegram.Bot.Types.Enums.ParseMode.Markdown);
+برای ارتباط با توسعه دهنده به [Milad](https://t.me/milad_xandi/) پیام بدید.", parseMode: Telegram.Bot.Types.Enums.ParseMode.Markdown);
 
                                 }
                                 #region
@@ -121,20 +131,13 @@ namespace ReturnerBot
                                     var Message = update.Message.Text;
                                     if (Message.Contains("[") || Message.Contains("]") || Message.Contains("(") || Message.Contains(")") || Message.Contains(":") || Message.Contains(";") || Message.Contains("*") || Message.Contains("_") || Message.Contains("`") || Message.Contains("```"))
                                     {
-                                        if (Calture.TextInfo.IsRightToLeft && (Message.IndexOf("]") >= Message.IndexOf("[") && Message.IndexOf(")") >= Message.IndexOf("(")))
+                                        if (Message.IndexOf("]") >= Message.IndexOf("[") && Message.IndexOf(")") >= Message.IndexOf("("))
                                         {
                                             //reply back the pre defined commands
                                             await Bot.SendTextMessageAsync(chatId: ChatId, replyToMessageId: MessageId, text: Message, parseMode: Telegram.Bot.Types.Enums.ParseMode.Markdown);
                                             await Bot.SendTextMessageAsync(chatId: ChatId, replyToMessageId: MessageId, text: Message, parseMode: Telegram.Bot.Types.Enums.ParseMode.Markdown, disableWebPagePreview: true);
                                             continue;
                                         }
-                                        else if (Calture.TextInfo.IsRightToLeft == false && (Message.IndexOf("]") <= Message.IndexOf("[") && Message.IndexOf(")") <= Message.IndexOf("(")))
-                                        {
-                                            await Bot.SendTextMessageAsync(chatId: ChatId, replyToMessageId: MessageId, text: Message, parseMode: Telegram.Bot.Types.Enums.ParseMode.Markdown);
-                                            await Bot.SendTextMessageAsync(chatId: ChatId, replyToMessageId: MessageId, text: Message, parseMode: Telegram.Bot.Types.Enums.ParseMode.Markdown, disableWebPagePreview: true);
-                                            continue;
-                                        }
-
                                     }
                                     //guides
                                     await Bot.SendTextMessageAsync(chatId: ChatId, replyToMessageId: MessageId, text: @"لطفا برای استفاده از امکانات توسعه دهندگان از این الگو استفاده کنید:
@@ -288,13 +291,27 @@ namespace ReturnerBot
                                         {
                                             //removing id with the prefix
                                             int AT = Caption.IndexOf("@");
-                                            var Matching = BadChannels.FirstOrDefault(stringToCheck => Caption.Contains(Caption));
+                                            bool Matching = rgx.IsMatch(Caption);
                                             if (Caption.Contains("@") && AT >= 4)
                                             {
 
-                                                if (Matching != null)
+                                                if (Matching || Caption.Contains('�'))
                                                 {
                                                     Console.WriteLine($"\n+++ {Me.Username}: There was a matching with BadChannels & successfully handled by me! +++");
+
+                                                    string rd = Caption.Substring(AT + 1);
+                                                    int space = rd.IndexOf(" ");
+                                                    if (space >= 2)
+                                                    {
+                                                        string sub = rd.Remove(space);
+                                                        BadChannels.Insert(ind, $"@{sub}");
+                                                    }
+                                                    else
+                                                    {
+                                                        string sub = rd;
+                                                        BadChannels.Insert(ind, $"@{sub}");
+                                                    }
+
                                                     string End = Caption.Remove(AT - 4);
 
                                                     Console.WriteLine($"{fileName}.png is uploading...");
@@ -309,7 +326,7 @@ namespace ReturnerBot
                                                 }
                                                 else
                                                 {
-                                                    string End = Caption.Remove(AT - 2);
+                                                    string End = Caption.Remove(AT - 1);
 
                                                     Console.WriteLine($"{fileName}.png is uploading...");
 
@@ -408,13 +425,27 @@ namespace ReturnerBot
                                         {
                                             //removing id with the prefix
                                             int AT = Caption.IndexOf("@");
-                                            var Matching = BadChannels.FirstOrDefault(stringToCheck => Caption.Contains(Caption));
+                                            bool Matching = rgx.IsMatch(Caption);
                                             if (Caption.Contains("@") && AT >= 4)
                                             {
 
-                                                if (Matching != null)
+                                                if (Matching)
                                                 {
                                                     Console.WriteLine($"\n+++ {Me.Username}: There was a matching with BadChannels & successfully handled by me! +++");
+
+                                                    string rd = Caption.Substring(AT + 1);
+                                                    int space = rd.IndexOf(" ");
+                                                    if (space >= 2)
+                                                    {
+                                                        string sub = rd.Remove(space);
+                                                        BadChannels.Insert(ind, $"{sub}");
+                                                    }
+                                                    else
+                                                    {
+                                                        string sub = rd;
+                                                        BadChannels.Insert(ind, $"{sub}");
+                                                    }
+
                                                     string End = Caption.Remove(AT - 4);
 
                                                     Console.WriteLine($"{fileName}.mp4 is uploading...");
@@ -429,7 +460,7 @@ namespace ReturnerBot
                                                 }
                                                 else
                                                 {
-                                                    string End = Caption.Remove(AT - 2);
+                                                    string End = Caption.Remove(AT - 1);
 
                                                     Console.WriteLine($"{fileName}.mp4 is uploading...");
 
@@ -548,13 +579,27 @@ namespace ReturnerBot
                                             {
                                                 //removing id with the prefix
                                                 int AT = Caption.IndexOf("@");
-                                                var Matching = BadChannels.FirstOrDefault(stringToCheck => Caption.Contains(Caption));
+                                                bool Matching = rgx.IsMatch(Caption);
                                                 if (Caption.Contains("@") && AT >= 4)
                                                 {
 
-                                                    if (Matching != null)
+                                                    if (Matching)
                                                     {
                                                         Console.WriteLine($"\n+++ {Me.Username}: There was a matching with BadChannels & successfully handled by me! +++");
+
+                                                        string rd = Caption.Substring(AT + 1);
+                                                        int space = rd.IndexOf(" ");
+                                                        if (space >= 2)
+                                                        {
+                                                            string sub = rd.Remove(space);
+                                                            BadChannels.Insert(ind, $"{sub}");
+                                                        }
+                                                        else
+                                                        {
+                                                            string sub = rd;
+                                                            BadChannels.Insert(ind, $"{sub}");
+                                                        }
+
                                                         string End = Caption.Remove(AT - 4);
 
                                                         Console.WriteLine($"{fileName}.mp3 is uploading...");
@@ -568,7 +613,7 @@ namespace ReturnerBot
                                                     }
                                                     else
                                                     {
-                                                        string End = Caption.Remove(AT - 2);
+                                                        string End = Caption.Remove(AT - 1);
 
                                                         Console.WriteLine($"{fileName}.mp3 is uploading...");
 
@@ -646,21 +691,81 @@ namespace ReturnerBot
                                 await Bot.SendTextMessageAsync(chatId: ChatId, text: $"در حال دریافت پرونده ...");
                                 if (Caption != null)
                                 {
+
                                     if (Caption.Contains("@"))
                                     {
-                                        int Before = Caption.IndexOf("@");
-                                        string End = Caption.Remove(Before - 4);
                                         using (var saveFile = System.IO.File.Open(gif_save_url, FileMode.OpenOrCreate))
                                         {
                                             await file.FileStream.CopyToAsync(saveFile);
-                                            Console.WriteLine($"New file has been received with {fileName}.gif filename.");
-                                            await Bot.SendTextMessageAsync(chatId: ChatId, text: $"پرونده ی شما دریافت شد و با نام {fileName}.gif در ابر ذخیره شد، منتظر بازگشت آن باشید ...");
+                                            Console.WriteLine($"New file has been received with {fileName}.mp4 filename.");
+                                            await Bot.SendTextMessageAsync(chatId: ChatId, text: $"پرونده ی شما دریافت شد و با نام {fileName}.mp4 در ابر ذخیره شد، منتظر بازگشت آن باشید ...");
                                         }
 
+                                        //start uploading from the defined path
                                         using (var stream = System.IO.File.Open(gif_save_url, FileMode.OpenOrCreate))
                                         {
-                                            Console.WriteLine($"{fileName}.gif is uploading...");
-                                            await Bot.SendDocumentAsync(chatId: ChatId, caption: End + @" @MyCoderRobot", document: new Telegram.Bot.Types.FileToSend($"{fileName}", stream), replyToMessageId: MessageId);
+                                            //removing id with the prefix
+                                            int AT = Caption.IndexOf("@");
+                                            bool Matching = rgx.IsMatch(Caption);
+                                            if (Caption.Contains("@") && AT >= 4)
+                                            {
+
+                                                if (Matching)
+                                                {
+                                                    Console.WriteLine($"\n+++ {Me.Username}: There was a matching with BadChannels & successfully handled by me! +++");
+
+                                                    string rd = Caption.Substring(AT + 1);
+                                                    int space = rd.IndexOf(" ");
+                                                    if (space >= 2)
+                                                    {
+                                                        string sub = rd.Remove(space);
+                                                        BadChannels.Insert(ind, $"{sub}");
+                                                    }
+                                                    else
+                                                    {
+                                                        string sub = rd;
+                                                        BadChannels.Insert(ind, $"{sub}");
+                                                    }
+
+                                                    string End = Caption.Remove(AT - 4);
+
+                                                    Console.WriteLine($"{fileName}.gif is uploading...");
+                                                    await Bot.SendDocumentAsync(chatId: ChatId, caption: End + @"
+@MyCoderRobot", document: new Telegram.Bot.Types.FileToSend($"{fileName}", stream), replyToMessageId: MessageId);
+                                                    Console.WriteLine($"{fileName}.gif has been uploaded");
+                                                    continue;
+
+                                                }
+                                                else
+                                                {
+                                                    string End = Caption.Remove(AT - 1);
+
+                                                    Console.WriteLine($"{fileName}.gif is uploading...");
+                                                    await Bot.SendDocumentAsync(chatId: ChatId, caption: End + @"
+@MyCoderRobot", document: new Telegram.Bot.Types.FileToSend($"{fileName}", stream), replyToMessageId: MessageId);
+                                                    Console.WriteLine($"{fileName}.gif has been uploaded");
+
+                                                    continue;
+                                                }
+
+                                            }
+                                            else if (Caption.Contains("@") && AT <= 2)
+                                            {
+                                                int Line = Caption.IndexOf('\n');
+                                                if (Line <= 20)
+                                                {
+                                                    string End = Caption.Substring(Line + 1);
+
+                                                    Console.WriteLine($"{fileName}.gif is uploading...");
+
+                                                    //sending file
+                                                    Console.WriteLine($"{fileName}.gif is uploading...");
+                                                    await Bot.SendDocumentAsync(chatId: ChatId, caption: End + @"
+@MyCoderRobot", document: new Telegram.Bot.Types.FileToSend($"{fileName}", stream), replyToMessageId: MessageId);
+                                                    Console.WriteLine($"{fileName}.gif has been uploaded");
+                                                    continue;
+                                                }
+                                            }
                                         }
                                     }
                                     else
@@ -669,7 +774,7 @@ namespace ReturnerBot
                                         {
                                             await file.FileStream.CopyToAsync(saveFile);
                                             Console.WriteLine($"New file has been received with {fileName}.gif filename.");
-                                            await Bot.SendTextMessageAsync(chatId: ChatId, text: $"پرونده ی شما دریافت شد و با نام {fileName}.gif در ابر ذخیره شد، منتظر بازگشت آن باشید ...");
+                                            await Bot.SendTextMessageAsync(chatId: ChatId, text: $"پرونده ی شما دریافت شد و با نام {fileName}.mp4 در ابر ذخیره شد، منتظر بازگشت آن باشید ...");
                                         }
 
                                         using (var stream = System.IO.File.Open(gif_save_url, FileMode.OpenOrCreate))
@@ -677,6 +782,7 @@ namespace ReturnerBot
                                             Console.WriteLine($"{fileName}.gif is uploading...");
                                             await Bot.SendDocumentAsync(chatId: ChatId, caption: Caption + @"
 @MyCoderRobot", document: new Telegram.Bot.Types.FileToSend($"{fileName}", stream), replyToMessageId: MessageId);
+                                            Console.WriteLine($"{fileName}.gif has been uploaded");
                                         }
                                     }
 
@@ -687,13 +793,15 @@ namespace ReturnerBot
                                     {
                                         await file.FileStream.CopyToAsync(saveFile);
                                         Console.WriteLine($"New file has been received with {fileName}.gif filename.");
-                                        await Bot.SendTextMessageAsync(chatId: ChatId, text: $"پرونده ی شما دریافت شد و با نام {fileName}.gif در ابر ذخیره شد، منتظر بازگشت آن باشید ...");
+                                        await Bot.SendTextMessageAsync(chatId: ChatId, text: $"پرونده ی شما دریافت شد و با نام {fileName}.mp4 در ابر ذخیره شد، منتظر بازگشت آن باشید ...");
                                     }
 
                                     using (var stream = System.IO.File.Open(gif_save_url, FileMode.OpenOrCreate))
                                     {
                                         Console.WriteLine($"{fileName}.gif is uploading...");
                                         await Bot.SendDocumentAsync(chatId: ChatId, caption: Caption + @" @MyCoderRobot", document: new Telegram.Bot.Types.FileToSend($"{fileName}", stream), replyToMessageId: MessageId);
+                                        Console.WriteLine($"{fileName}.gif has been uploaded");
+
                                     }
                                 }
                             }
@@ -711,16 +819,16 @@ namespace ReturnerBot
                                 Users.Add(update.Message.Chat.Username.ToString());
                                 await Bot.SendTextMessageAsync(chatId: ChatId, text: "نام کاربری شما پذیرفته شد، خوش آمدید!", replyToMessageId: MessageId);
                                 continue;
-                            }
-                            else if (update.Message.Text == "ShowOurSpecialListUsers")
+                            }*/
+                            if (update.Message.Text == "ShowBadChannels")
                             {
-                                foreach (var item in Users)
+                                foreach (var item in BadChannels)
                                 {
                                     await Bot.SendTextMessageAsync(chatId: ChatId, replyToMessageId: MessageId, text: item);
                                     continue;
                                 }
                             }
-                            else
+                            /*else
                             {
                                 await Bot.SendTextMessageAsync(chatId: ChatId, replyToMessageId: MessageId, text: $@"سلام {update.Message.Chat.FirstName}, 
     متاسفانه این روبات برای استفاده شخصی طراحی شده است.
